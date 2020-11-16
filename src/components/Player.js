@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 // fontawesome
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -8,14 +8,21 @@ import {
   faPause,
 } from "@fortawesome/free-solid-svg-icons";
 
-const Player = ({ currentSong, isPlaying, setIsPlaying }) => {
-  // State
+const Player = ({ currentSong, isPlaying, setIsPlaying, audioRef }) => {
   const [songInfo, setSongInfo] = useState({
     currentTime: 0,
     duration: 0,
   });
-  // Refs
-  const audioRef = useRef(null);
+  // handlers
+  const timeUpdateHandler = (e) => {
+    setSongInfo({
+      // spread operator, updates song info
+      ...songInfo,
+      currentTime: e.target.currentTime,
+      duration: e.target.duration,
+    });
+  };
+
   // Handlers
   const playSongHandler = () => {
     if (isPlaying) {
@@ -26,17 +33,10 @@ const Player = ({ currentSong, isPlaying, setIsPlaying }) => {
       audioRef.current.play();
     }
   };
-  const timeUpdateHandler = (e) => {
-    setSongInfo({
-      // spread operator, updates song info
-      ...songInfo,
-      currentTime: e.target.currentTime,
-      duration: e.target.duration,
-    });
-  };
+
   const getTime = (time) => {
+    // Formats time of the song, mints and secs
     return (
-      // Formats time of the song, mints and secs
       Math.floor(time / 60) + ":" + ("0" + Math.floor(time % 60)).slice(-2)
     );
   };
@@ -56,7 +56,7 @@ const Player = ({ currentSong, isPlaying, setIsPlaying }) => {
         <input
           // input valus
           min={0}
-          max={songInfo.duration}
+          max={songInfo ? getTime(songInfo.duration) : "0:00"}
           value={songInfo.currentTime}
           onChange={dragHandler}
           type="range"

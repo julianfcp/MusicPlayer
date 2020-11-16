@@ -1,13 +1,17 @@
 import React from "react";
 import LibrarySong from "./LibrarySong";
 
-const Library = ({ songs, setCurrentSong }) => {
+const Library = ({ songs, setCurrentSong, audioRef, isPlaying, setSongs }) => {
   const songList = songs.map((song) => (
     <LibrarySong
       key={song.id}
       setCurrentSong={setCurrentSong}
       songs={songs}
       song={song}
+      id={song.id}
+      audioRef={audioRef}
+      isPlaying={isPlaying}
+      setSongs={setSongs}
     />
   ));
 
