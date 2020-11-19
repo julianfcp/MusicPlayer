@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { playAudio } from "../util";
+
 // fontawesome
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -8,7 +10,15 @@ import {
   faPause,
 } from "@fortawesome/free-solid-svg-icons";
 
-const Player = ({ currentSong, isPlaying, setIsPlaying, audioRef }) => {
+const Player = ({
+  currentSong,
+  setCurrentSong,
+  isPlaying,
+  setIsPlaying,
+  audioRef,
+  songs,
+  setSongs,
+}) => {
   const [songInfo, setSongInfo] = useState({
     currentTime: 0,
     duration: 0,
@@ -33,7 +43,6 @@ const Player = ({ currentSong, isPlaying, setIsPlaying, audioRef }) => {
       audioRef.current.play();
     }
   };
-
   const getTime = (time) => {
     // Formats time of the song, mints and secs
     return (
@@ -47,6 +56,47 @@ const Player = ({ currentSong, isPlaying, setIsPlaying, audioRef }) => {
       ...songInfo,
       currentTime: e.target.value,
     });
+  };
+  const skipTrackHandler = (direction) => {
+    // find what is the index of the current song
+    let currentIndex = songs.findIndex((song) => song.id === currentSong.id);
+    // stores new index calculated
+    let newIndex = currentIndex;
+    switch (direction) {
+      case "skip-back":
+        if (currentIndex - 1 < 0) {
+          newIndex = songs.length - 1;
+        } else {
+          newIndex = (currentIndex - 1) % songs.length;
+        }
+        break;
+      case "skip-forward":
+        // when modulus is 0, it resets the index to 0 and start over again
+        newIndex = (currentIndex + 1) % songs.length;
+        break;
+      default:
+        break;
+    }
+    // sets the new song with the new index calculated
+    setCurrentSong(songs[newIndex]);
+    // updates the library with the active tag
+    const newSongs = songs.map((song) => {
+      if (song.id === songs[newIndex].id) {
+        return {
+          ...song,
+          active: true,
+        };
+      } else {
+        return {
+          ...song,
+          active: false,
+        };
+      }
+    });
+    // sets the new Songs updated
+    setSongs(newSongs);
+    // play de audio when skip
+    playAudio(isPlaying, audioRef);
   };
 
   return (
@@ -68,7 +118,12 @@ const Player = ({ currentSong, isPlaying, setIsPlaying, audioRef }) => {
         </p>
       </div>
       <div className="play-control">
-        <FontAwesomeIcon className="skip-back" size="2x" icon={faAngleLeft} />
+        <FontAwesomeIcon
+          onClick={() => skipTrackHandler("skip-back")}
+          className="skip-back"
+          size="2x"
+          icon={faAngleLeft}
+        />
         <FontAwesomeIcon
           onClick={playSongHandler}
           className="play"
@@ -76,6 +131,7 @@ const Player = ({ currentSong, isPlaying, setIsPlaying, audioRef }) => {
           icon={isPlaying ? faPause : faPlay}
         />
         <FontAwesomeIcon
+          onClick={() => skipTrackHandler("skip-forward")}
           className="skip-forward"
           size="2x"
           icon={faAngleRight}

@@ -7,7 +7,7 @@ import Nav from "./components/Nav";
 // Styles
 import "./styles/app.scss";
 // data
-import data from "./util";
+import data from "./data";
 
 function App() {
   // Refs
@@ -27,6 +27,9 @@ function App() {
         isPlaying={isPlaying}
         setIsPlaying={setIsPlaying}
         currentSong={currentSong}
+        setCurrentSong={setCurrentSong}
+        songs={songs}
+        setSongs={setSongs}
       />
       <Library
         audioRef={audioRef}
