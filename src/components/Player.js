@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { playAudio } from "../util";
 
 // fontawesome
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -57,7 +56,7 @@ const Player = ({
       currentTime: e.target.value,
     });
   };
-  const skipTrackHandler = (direction) => {
+  const skipTrackHandler = async (direction) => {
     // find what is the index of the current song
     let currentIndex = songs.findIndex((song) => song.id === currentSong.id);
     // stores new index calculated
@@ -78,7 +77,8 @@ const Player = ({
         break;
     }
     // sets the new song with the new index calculated
-    setCurrentSong(songs[newIndex]);
+    // awaits to set the song and then play it
+    await setCurrentSong(songs[newIndex]);
     // updates the library with the active tag
     const newSongs = songs.map((song) => {
       if (song.id === songs[newIndex].id) {
@@ -96,7 +96,9 @@ const Player = ({
     // sets the new Songs updated
     setSongs(newSongs);
     // play de audio when skip
-    playAudio(isPlaying, audioRef);
+    if (isPlaying) {
+      audioRef.current.play();
+    }
   };
 
   return (
@@ -143,6 +145,7 @@ const Player = ({
         onLoadedMetadata={timeUpdateHandler}
         ref={audioRef}
         src={currentSong.audio}
+        onEnded={() => skipTrackHandler("skip-forward")}
       ></audio>
     </div>
   );
